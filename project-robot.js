@@ -168,6 +168,9 @@ function eRobot({ place, parcels }, route) {
     }
 
     let route9 = parcelList.reduce((shortest, current) => {
+      if (current[0].length === shortest[0].length) {
+        return current[1].place != place ? current : shortest;
+      }
       return current[0].length < shortest[0].length ? current : shortest;
     }, parcelList[0]);
 
@@ -210,7 +213,7 @@ function compareRobots(robot1, memory1, robot2, memory2, robot3, memory3) {
   let z = 0;
   let x = 0;
   let e = 0;
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 1; i++) {
     const state = VillageState.random();
     const a = runRobot(state, robot1, memory1);
     const b = runRobot(state, robot2, memory2);
@@ -219,10 +222,12 @@ function compareRobots(robot1, memory1, robot2, memory2, robot3, memory3) {
     x += b;
     e += c;
   }
-  z = Math.round(z / 100);
-  x = Math.round(x / 100);
-  e = Math.round(e / 100);
-  console.log(`ROBOT 1: ${z} turns \nROBOT 2: ${x} turns \nEROBOT 3: ${e}`);
+  z = Math.round(z / 1);
+  x = Math.round(x / 1);
+  e = Math.round(e / 1);
+  console.log(
+    `ROBOT 1: ${z} turns \nROBOT 2: ${x} turns \nEROBOT 3: ${e} turns`
+  );
 }
 
 compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, []);
