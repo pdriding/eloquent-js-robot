@@ -1,3 +1,23 @@
+// function runRobot(state, robot, memory) {
+//   for (let turns = 0; ; turns++) {
+//     console.log(1111111111, turns);
+//     console.log(555, state.parcels);
+//     if (state.parcels.length === 0) {
+//       console.log(1111, turns);
+//       return turns;
+//     }
+//     const hmm = robot(state, memory);
+//     memory = hmm.memory;
+//     state = state.move(hmm.direction);
+
+//     console.log(8888, state);
+//   }
+
+//   // console.log(robot);
+// }
+
+//-------------------------------------------
+
 const roads = [
   "Alice's House-Bob's House",
   "Alice's House-Cabin",
@@ -58,16 +78,16 @@ class VillageState {
   }
 }
 
-// function runRobot(state, robot, memory) {
-//   for (let turn = 0; ; turn++) {
-//     if (state.parcels.length == 0) {
-//       return turn;
-//     }
-//     let action = robot(state, memory);
-//     state = state.move(action.direction);
-//     memory = action.memory;
-//   }
-// }
+function runRobot(state, robot, memory) {
+  for (let turn = 0; ; turn++) {
+    if (state.parcels.length == 0) {
+      return turn;
+    }
+    let action = robot(state, memory);
+    state = state.move(action.direction);
+    memory = action.memory;
+  }
+}
 
 function randomPick(array) {
   let choice = Math.floor(Math.random() * array.length);
@@ -92,6 +112,8 @@ VillageState.random = function (parcelCount = 5) {
 };
 
 // runRobot(VillageState.random(), randomRobot);
+
+//-------------------------------------------------------
 
 const mailRoute = [
   "Alice's House",
@@ -118,6 +140,7 @@ function routeRobot(state, memory) {
 
 //-----------------------------------------------------------------------
 
+// // Goal-oriented robot: Plans a route to pick up or deliver parcels
 function goalOrientedRobot({ place, parcels }, route) {
   if (route.length == 0) {
     // No planned route
@@ -130,15 +153,53 @@ function goalOrientedRobot({ place, parcels }, route) {
       route = findRoute(roadGraph, place, parcel.address);
     }
   }
+
   return { direction: route[0], memory: route.slice(1) }; // Move and update memory
 }
 
+function eRobot({ place, parcels }, route) {
+  console.log(1);
+  if (route.length == 0) {
+    let parcelList = [];
+
+    for (let i = 0; i < parcels.length; i++) {
+      let parcel = parcels[i];
+      const a = findRoute(roadGraph, place, parcel.place);
+      parcelList.push([a, parcel]);
+    }
+
+    let route9 = parcelList.reduce((shortest, current) => {
+      return current.length < shortest.length ? current : shortest;
+    }, parcelList[0]);
+
+    if (route9[1].place != place) {
+      console.log(2);
+      route = route9[1].place;
+    } else {
+      // Parcel is picked up, deliver it
+      console.log(333, parcels[0].address);
+      route = findRoute(roadGraph, place, parcels[0].address);
+    }
+  }
+  console.log(5);
+  return { direction: route[0], memory: route.slice(1) }; // Move and update memory
+}
+
+// Function to find the shortest route between two points in a graph
 function findRoute(graph, from, to) {
-  let work = [{ at: from, route: [] }];
+  let work = [{ at: from, route: [] }]; // Initialize work queue with the starting point
+
   for (let i = 0; i < work.length; i++) {
-    let { at, route } = work[i];
+    let { at, route } = work[i]; // Deconstruct the current location and route
+
+    // Explore all neighboring locations
     for (let place of graph[at]) {
-      if (place == to) return route.concat(place);
+      if (place == to) {
+        // If the target location is found, return the completed route
+        return route.concat(place);
+      }
+
+      // If this place hasn't been explored yet, add it to the work queue
       if (!work.some((w) => w.at == place)) {
         work.push({ at: place, route: route.concat(place) });
       }
@@ -148,37 +209,25 @@ function findRoute(graph, from, to) {
 
 //---------------------------------------------------------------------------------
 
-function runRobot(state, robot, memory) {
-  for (let turns = 0; ; turns++) {
-    console.log(1111111111, turns);
-    console.log(555, state.parcels);
-    if (state.parcels.length === 0) {
-      console.log(1111, turns);
-      return turns;
-    }
-    const hmm = robot(state, memory);
-    memory = hmm.memory;
-    state = state.move(hmm.direction);
-
-    console.log(8888, state);
-  }
-
-  // console.log(robot);
-}
-
-function compareRobots(robot1, memory1, robot2, memory2) {
+function compareRobots(robot1, memory1, robot2, memory2, robot3, memory3) {
   let z = 0;
   let x = 0;
-  for (let i = 0; i < 100; i++) {
+  let e = 0;
+  for (let i = 0; i < 1; i++) {
     const state = VillageState.random();
     const a = runRobot(state, robot1, memory1);
     const b = runRobot(state, robot2, memory2);
+    const c = runRobot(state, robot3, memory3);
     z += a;
     x += b;
+    e += c;
   }
-  x = Math.round(x / 100);
-  z = Math.round(z / 100);
-  console.log(`ROBOT 1: ${x} turns, ROBOT 2: ${z} turns`);
+  x = Math.round(x / 1);
+  z = Math.round(z / 1);
+  e = Math.round(e / 1);
+  console.log(`ROBOT 1: ${x} turns \nROBOT 2: ${z} turns \nEROBOT 3: ${e}`);
 }
 
-compareRobots(routeRobot, [], goalOrientedRobot, []);
+compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, []);
+
+function efficentRobot() {}
