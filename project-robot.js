@@ -158,7 +158,6 @@ function goalOrientedRobot({ place, parcels }, route) {
 }
 
 function eRobot({ place, parcels }, route) {
-  console.log(1);
   if (route.length == 0) {
     let parcelList = [];
 
@@ -169,7 +168,7 @@ function eRobot({ place, parcels }, route) {
     }
 
     let route9 = parcelList.reduce((shortest, current) => {
-      return current.length < shortest.length ? current : shortest;
+      return current[0].length < shortest[0].length ? current : shortest;
     }, parcelList[0]);
 
     if (route9[1].place != place) {
@@ -179,7 +178,7 @@ function eRobot({ place, parcels }, route) {
       route = findRoute(roadGraph, place, route9[1].address);
     }
   }
-  console.log(5);
+
   return { direction: route[0], memory: route.slice(1) }; // Move and update memory
 }
 
