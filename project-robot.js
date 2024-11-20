@@ -185,6 +185,34 @@ function eRobot({ place, parcels }, route) {
   return { direction: route[0], memory: route.slice(1) }; // Move and update memory
 }
 
+//------------------------------------
+
+function lazyRobot({ place, parcels }, route) {
+  if (route.length === 0) {
+    let routes = parcels.map((p) => {
+      if (p.place != place) {
+        // Parcel is not yet picked up
+        return { route: findRoute(roadGraph, place, p.place), pickUp: true };
+      } else {
+        // Parcel is picked up, deliver it
+        return { route: findRoute(roadGraph, place, p.address), pickUp: false };
+      }
+    });
+
+    function sort({ route, pickUp }) {
+      return (pickUp ? 0.5 : 0) - route.length;
+    }
+
+    route = routes.reduce((a, b) => {
+      return sort(a) > sort(b) ? a : b;
+    }).route;
+  }
+
+  return { direction: route[0], memory: route.slice(1) }; // Move and update memory
+}
+
+//-------------------------------------
+
 // Function to find the shortest route between two points in a graph
 function findRoute(graph, from, to) {
   let work = [{ at: from, route: [] }]; // Initialize work queue with the starting point
@@ -209,27 +237,38 @@ function findRoute(graph, from, to) {
 
 //---------------------------------------------------------------------------------
 
-function compareRobots(robot1, memory1, robot2, memory2, robot3, memory3) {
+function compareRobots(
+  robot1,
+  memory1,
+  robot2,
+  memory2,
+  robot3,
+  memory3,
+  robot4,
+  memory4
+) {
   let z = 0;
   let x = 0;
   let e = 0;
-  for (let i = 0; i < 1; i++) {
+  let f = 0;
+  for (let i = 0; i < 100; i++) {
     const state = VillageState.random();
     const a = runRobot(state, robot1, memory1);
     const b = runRobot(state, robot2, memory2);
     const c = runRobot(state, robot3, memory3);
+    const d = runRobot(state, robot4, memory4);
     z += a;
     x += b;
     e += c;
+    f += d;
   }
-  z = Math.round(z / 1);
-  x = Math.round(x / 1);
-  e = Math.round(e / 1);
+  z = Math.round(z / 100);
+  x = Math.round(x / 100);
+  e = Math.round(e / 100);
+  f = Math.round(f / 100);
   console.log(
-    `ROBOT 1: ${z} turns \nROBOT 2: ${x} turns \nEROBOT 3: ${e} turns`
+    `ROBOT 1: ${z} turns \nROBOT 2: ${x} turns \nEROBOT 3: ${e} turns \nLAZY: ${f}`
   );
 }
 
-compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, []);
-
-function efficentRobot() {}
+compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, [], lazyRobot, []);
