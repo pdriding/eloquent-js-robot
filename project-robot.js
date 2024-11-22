@@ -271,4 +271,60 @@ function compareRobots(
   );
 }
 
-compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, [], lazyRobot, []);
+// compareRobots(routeRobot, [], goalOrientedRobot, [], eRobot, [], lazyRobot, []);
+
+// class PGroup {
+//   constructor(array) {
+//     this.array = array;
+//   }
+//   add(a) {
+//     let f = this.array.concat(a);
+//     return new PGroup(f);
+//   }
+//   delete(a) {
+//     const b = this.array.filter((b) => b !== a);
+//     return new PGroup(b);
+//   }
+//   has(value) {
+//     return this.array.includes(value);
+//   }
+
+//   static empty = {
+//     add(a) {
+//       return new PGroup(a);
+//     },
+//   };
+
+// }
+
+class PGroup {
+  constructor(array) {
+    this.array = array ? array : [];
+  }
+  add(a) {
+    let f = this.array.concat(a);
+    return new PGroup(f);
+  }
+  delete(a) {
+    const b = this.array.filter((b) => b !== a);
+    return new PGroup(b);
+  }
+  has(value) {
+    return this.array.includes(value);
+  }
+
+  static empty = new PGroup();
+}
+
+let a = PGroup.empty.add("a");
+console.log(111, a);
+let ab = a.add("b");
+console.log(222, a, ab);
+let b = ab.delete("a");
+
+console.log(b.has("b"));
+// → true
+console.log(a.has("b"));
+// → false
+console.log(b.has("a"));
+// → false
